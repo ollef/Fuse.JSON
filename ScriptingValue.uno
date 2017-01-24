@@ -2,40 +2,40 @@ using Fuse.Scripting;
 using Uno;
 using Uno.Collections;
 
-namespace Fuse.Scripting.JSON
+namespace JSON
 {
 	public static class ScriptingValue
 	{
-		public static object To(Context context, Value value)
+		public static object FromJSON(Context context, Value value)
 		{
 			return value.Match(new ToScriptingValue(context));
 		}
 
-		public static Value From(object value)
+		public static Value ToJSON(object value)
 		{
-			if (value == null) return new String(null);
+			if (value == null) return Null.TheNull;
 			if (value is string) return new String((string)value);
 			if (value is double) return new Number((double)value);
 			if (value is int) return new Number((int)value);
 			if (value is bool) return new Bool((bool)value);
-			if (value is Scripting.Array)
+			if (value is Fuse.Scripting.Array)
 			{
-				var sarr = (Scripting.Array)value;
+				var sarr = (Fuse.Scripting.Array)value;
 				var len = sarr.Length;
 				var arr = new Value[len];
 				for (int i = 0; i < len; ++i)
 				{
-					arr[i] = From(sarr[i]);
+					arr[i] = ToJSON(sarr[i]);
 				}
 				return new Array(arr);
 			}
-			if (value is Scripting.Object)
+			if (value is Fuse.Scripting.Object)
 			{
-				var sobj = (Scripting.Object)value;
+				var sobj = (Fuse.Scripting.Object)value;
 				var dict = new Dictionary<string, Value>();
 				foreach (var key in sobj.Keys)
 				{
-					dict[key] = From(sobj[key]);
+					dict[key] = ToJSON(sobj[key]);
 				}
 				return new Object(dict);
 			}

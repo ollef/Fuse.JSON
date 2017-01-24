@@ -6,5 +6,7 @@
   "Includes": [
     "Value.uno",
     "ScriptingValue.uno",
+    "ObjCObject.uno",
+    "Test.uno",
   ]
 }

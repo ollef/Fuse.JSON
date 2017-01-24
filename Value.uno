@@ -1,6 +1,7 @@
+using Uno;
 using Uno.Collections;
 
-namespace Fuse.Scripting.JSON
+namespace JSON
 {
 	public interface Matcher<T>
 	{
@@ -17,13 +18,25 @@ namespace Fuse.Scripting.JSON
 		T Match<T>(Matcher<T> matcher);
 	}
 
+	public class Null : Value
+	{
+		public T Match<T>(Matcher<T> matcher) { return matcher.Case(); }
+		private Null() { }
+		public static Null TheNull = new Null();
+	}
+
 	public class String : Value
 	{
 		readonly string _value;
-		public String(string value) { _value = value; }
+		public String(string value)
+		{
+			if (value == null)
+				throw new ArgumentNullException(nameof(value));
+			_value = value;
+		}
 		public T Match<T>(Matcher<T> matcher)
 		{
-			return _value == null ? matcher.Case() : matcher.Case(_value);
+			return matcher.Case(_value);
 		}
 	}
 
@@ -48,33 +61,33 @@ namespace Fuse.Scripting.JSON
 
 		public Object(Dictionary<string, Value> dict)
 		{
+			if (dict == null)
+				throw new ArgumentNullException(nameof(dict));
 			_dict = dict;
 		}
 
 		public T Match<T>(Matcher<T> matcher)
 		{
-			return _dict == null
-				? matcher.Case()
-				: matcher.Case(
-					new ObjectEnumerable<T>(
-						(IEnumerable<KeyValuePair<string, Value>>)_dict.GetEnumerator(),
-						matcher));
+			return matcher.Case(
+				new ObjectEnumerable<T>(
+					_dict,
+					matcher));
 		}
 
 		class ObjectEnumerable<T> : IEnumerable<KeyValuePair<string, T>>
 		{
-			IEnumerable<KeyValuePair<string, Value>> _enumerable;
+			Dictionary<string, Value> _dict;
 			Matcher<T> _matcher;
 
-			public ObjectEnumerable(IEnumerable<KeyValuePair<string, Value>> enumerable, Matcher<T> matcher)
+			public ObjectEnumerable(Dictionary<string, Value> dict, Matcher<T> matcher)
 			{
-				_enumerable = enumerable;
+				_dict = dict;
 				_matcher = matcher;
 			}
 
 			public IEnumerator<KeyValuePair<string, T>> GetEnumerator()
 			{
-				return new ObjectEnumerator<T>(_enumerable.GetEnumerator(), _matcher);
+				return new ObjectEnumerator<T>(_dict.GetEnumerator(), _matcher);
 			}
 		}
 
@@ -115,17 +128,17 @@ namespace Fuse.Scripting.JSON
 
 		public Array(Value[] arr)
 		{
+			if (arr == null)
+				throw new ArgumentNullException(nameof(arr));
 			_arr = arr;
 		}
 
 		public T Match<T>(Matcher<T> matcher)
 		{
-			return _arr == null
-				? matcher.Case()
-				: matcher.Case(
-					new ArrayEnumerable<T>(
-						_arr,
-						matcher));
+			return matcher.Case(
+				new ArrayEnumerable<T>(
+					_arr,
+					matcher));
 		}
 
 		class ArrayEnumerable<T> : IEnumerable<T>
