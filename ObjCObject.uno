@@ -22,7 +22,7 @@ namespace JSON
 		public ObjC.Object Case(string str) @{ return str; @}
 
 		[Foreign(Language.ObjC)]
-		public ObjC.Object Case(double num) @{ return [NSNumber numberWithDouble:num] @}
+		public ObjC.Object Case(double num) @{ return [NSNumber numberWithDouble:num]; @}
 
 		[Foreign(Language.ObjC)]
 		public ObjC.Object Case(bool b) @{ return [NSNumber numberWithBool:(b ? YES : NO)]; @}
