@@ -21,20 +21,14 @@ namespace JSON
 		}
 	}
 
-	[ForeignInclude(Language.Java,
-					"java.lang.Object",
-    	            "java.util.List",
-	                "java.util.ArrayList",
-	                "java.util.Map",
-	                "java.util.HashMap",
-	                "android.util.Log")]	
+	[ForeignInclude(Language.Java,"java.lang.Object","java.util.List","java.util.ArrayList","java.util.Map","java.util.HashMap","android.util.Log")]	
 	extern(Android) class ToJavaObject : Matcher<Java.Object>
 	{
 		[Foreign(Language.Java)]
 		public Java.Object Case() @{ return null; @}
 
 		[Foreign(Language.Java)]
-		public Java.Object Case(string str) @{ return (String) str; @}
+		public Java.Object Case(string str) @{ return str; @}
 
 		[Foreign(Language.Java)]
 		public Java.Object Case(double num) @{ return (double) num; @}
@@ -44,15 +38,11 @@ namespace JSON
 
 		public Java.Object Case(IEnumerable<KeyValuePair<string, Java.Object>> obj)
 		{
-			debug_log("UNO - ToJavaObject - handle array");
-
 			var dict = NewHashMap();
-
-			debug_log("UNO - dict: " + dict);
 
 			foreach (var keyValue in obj)
 			{
-				SetDictValue(dict, keyValue.Key, keyValue.Value);
+				SetMapValue(dict, keyValue.Key, keyValue.Value);
 			}
 
 			return dict;
@@ -61,13 +51,11 @@ namespace JSON
 		[Foreign(Language.Java)]
 		extern(Android) Java.Object NewHashMap()
 		@{
-			debug_log("UNO - NewHashMap");
-
 			return new HashMap<String, Object>();
 		@}
 
 		[Foreign(Language.Java)]
-		extern(Android) void SetDictValue(Java.Object dictHandle, string key, Java.Object value)
+		extern(Android) void SetMapValue(Java.Object dictHandle, string key, Java.Object value)
 		@{
 			((Map<String, Object>)dictHandle).put(key, value);
 		@}
